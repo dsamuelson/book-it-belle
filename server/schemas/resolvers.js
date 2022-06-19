@@ -6,18 +6,18 @@ const resolvers = {
     Query: {
         getSingleUser: async (parent, {username}) => {
             return User.findOne({username})
-            .select('-__v')
+            .select('-__v -password')
             .populate('savedBooks')
         },
         getAllUsers: async () => {
             return User.find({})
-            .select('-__v')
+            .select('-__v -password')
             .populate('savedBooks')
         },
         me: async (parent, args, context) => {
             if (context.user) {
-                const userData = await User.findOne({username: context.user.username})
-                .select('-__v')
+                const userData = await User.findOne({ _id: context.user._id })
+                .select('-__v -password')
                 .populate('savedBooks')
 
                 return userData;
@@ -49,12 +49,14 @@ const resolvers = {
             const token = signToken(user);
             return { token, user }
         },
-        saveBook: async (parent, { bookId }, context) => {
+        saveBook: async (parent, { input }, context) => {
+            console.log(input)
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
-                    { username: context.user.username },
-                    { $addToSet: { savedBooks: bookId }},
-                    { new: true, runValidators: true })
+                    { _id: context.user._id },
+                    { $addToSet: { savedBooks: input }},
+                    { new: true })
+                    .select('-__v -password')
                     .populate('savedBooks');
     
                 return updatedUser;
@@ -63,12 +65,12 @@ const resolvers = {
             throw new AuthenticationError('You must be logged in')
             
         },
-        deleteBook: async (parent, { bookId }, context) => {
+        deleteBook: async (parent, args, context) => {
             if (context.user) {
                 const updatedUser = await User.findOneAndUpdate(
-                    { username: context.user.username },
-                    { $pull: { savedBooks: {bookId: bookId} }},
-                    { new: true, runValidators: true })
+                    { _id: context.user._id },
+                    { $pull: { savedBooks: { bookId: args.bookId } }},
+                    { new: true })
                     .populate('savedBooks');
     
                 return updatedUser;

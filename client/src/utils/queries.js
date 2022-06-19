@@ -7,13 +7,23 @@ export const GET_ME = gql`
             username
             email
             savedBooks {
-                bookId
                 authors
                 description
+                title
+                bookId
                 image
                 link
-                title
             }
+       
+        }
+    }
+`;
+
+export const GET_ALL = gql`
+    query getAllUsers {
+        getAllUsers {
+            _id
+            username
         }
     }
 `;
