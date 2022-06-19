@@ -9,7 +9,6 @@ import { GET_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
 
 const SavedBooks = (props) => {
-  //const [userData, setUserData] = useState({});
   const { loading, data, refetch } = useQuery(GET_ME);
   const [deleteBook] = useMutation(REMOVE_BOOK)
   // if data isn't here yet, say so
